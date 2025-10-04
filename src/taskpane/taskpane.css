@@ -78,3 +78,128 @@
 b {
     font-weight: bold;
 }
+
+/* Financial Report Styling */
+#financial-data-container, #report-container {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+#report-container {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#report-container h3 {
+    color: #0078d7;
+    border-bottom: 2px solid #0078d7;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.ms-Table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.ms-Table thead {
+    background-color: #0078d7;
+    color: white;
+}
+
+.ms-Table th, .ms-Table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.ms-Table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.ms-Table tbody tr:hover {
+    background-color: #e6f2ff;
+}
+
+#report-actions {
+    margin-top: 20px;
+    padding: 15px;
+    text-align: center;
+}
+
+#report-actions h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+#report-actions button {
+    margin: 5px;
+    padding: 10px 20px;
+    background-color: #0078d7;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#report-actions button:hover {
+    background-color: #005a9e;
+}
+
+.report-section {
+    margin-bottom: 30px;
+}
+
+.report-section h4 {
+    color: #0078d7;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+}
+
+.financial-summary {
+    background-color: #e6f2ff;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.financial-summary p {
+    margin: 5px 0;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.report-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #0078d7 0%, #005a9e 100%);
+    color: white;
+    border-radius: 5px;
+}
+
+.report-header h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.report-header p {
+    margin: 5px 0 0 0;
+    font-size: 14px;
+}
+
+.total-row {
+    font-weight: bold;
+    background-color: #d4e7f7 !important;
+}
+
+.subtotal-row {
+    font-weight: bold;
+    background-color: #e6f2ff !important;
+}

@@ -5,11 +5,11 @@
     "version": "1.0.0",
     "name": {
         "short": "Financial Report",
-        "full": "Contoso Task Pane Add-in"
+        "full": "Outlook Financial Report Generator"
     },
     "description": {
-        "short": "A template to get started.",
-        "full": "This is the template to get started."
+        "short": "Automated financial statement generation from emails and PDFs",
+        "full": "Self-contained Outlook Add-in that scans inbox for financial data, extracts information from emails and PDF attachments, and generates quarterly, semi-annual, and annual financial statements with universal regulatory compliance."
     },
     "developer": {
         "name": "Contoso",
@@ -104,7 +104,7 @@
                             "groups": [
                                 {
                                     "id": "msgReadGroup",
-                                    "label": "Contoso Add-in",
+                                    "label": "Financial Reports",
                                     "icons": [
                                         {
                                             "size": 16,
@@ -123,7 +123,7 @@
                                         {
                                             "id": "msgReadOpenPaneButton",
                                             "type": "button",
-                                            "label": "Show Task Pane",
+                                            "label": "Generate Financial Report",
                                             "icons": [
                                                 {
                                                     "size": 16,
@@ -139,15 +139,15 @@
                                                 }
                                             ],
                                             "supertip": {
-                                                "title": "Show Task Pane",
-                                                "description": "Opens a pane displaying all available properties."
+                                                "title": "Generate Financial Report",
+                                                "description": "Scan inbox for financial data and generate comprehensive financial statements."
                                             },
                                             "actionId": "TaskPaneRuntimeShow"
                                         },
                                         {
                                             "id": "ActionButton",
                                             "type": "button",
-                                            "label": "Perform an action",
+                                            "label": "Quick Scan",
                                             "icons": [
                                                 {
                                                     "size": 16,
@@ -163,8 +163,8 @@
                                                 }
                                             ],
                                             "supertip": {
-                                                "title": "Perform an action",
-                                                "description": "Perform an action when clicked."
+                                                "title": "Quick Scan",
+                                                "description": "Quickly scan current email for financial data."
                                             },
                                             "actionId": "action"
                                         }
