@@ -9,6 +9,8 @@ import * as pdfjsLib from "pdfjs-dist/build/pdf";
 // Set workerSrc to load the PDF worker from a CDN
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
+let financialDataStore = [];
+
 Office.onReady((info) => {
   if (info.host === Office.HostType.Outlook) {
     document.getElementById("sideload-msg").style.display = "none";
@@ -48,6 +50,7 @@ export async function run() {
               const financialData = extractFinancialData(email.Body.Content);
               if (financialData.length > 0) {
                 insertAt.innerHTML += `Found financial data: ${financialData.join(", ")}<br>`;
+                normalizeAndStoreData(financialData, "Email");
               }
 
               // Check for PDF attachments
@@ -125,5 +128,28 @@ export async function run() {
     const financialData = extractFinancialData(pdfText);
     if (financialData.length > 0) {
       document.getElementById("item-subject").innerHTML += `Found financial data in PDF: ${financialData.join(", ")}<br>`;
+      normalizeAndStoreData(financialData, "PDF");
     }
+  }
+
+  function normalizeAndStoreData(data, sourceType) {
+    data.forEach(item => {
+        const amount = parseFloat(item.replace(/[^0-9.-]+/g,""));
+        financialDataStore.push({
+            amount: amount,
+            source: sourceType,
+            date: new Date().toLocaleDateString()
+        });
+    });
+    renderFinancialDataTable();
+  }
+
+  function renderFinancialDataTable() {
+    const container = document.getElementById("financial-data-container");
+    let table = '<h3>Organized Financial Data</h3><table class="ms-Table"><thead><tr><th>Date</th><th>Amount</th><th>Source</th></tr></thead><tbody>';
+    financialDataStore.forEach(item => {
+        table += `<tr><td>${item.date}</td><td>$${item.amount.toFixed(2)}</td><td>${item.source}</td></tr>`;
+    });
+    table += '</tbody></table>';
+    container.innerHTML = table;
   }
