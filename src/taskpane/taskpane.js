@@ -13,16 +13,43 @@ Office.onReady((info) => {
   }
 });
 
-export async function run() {
-  /**
-   * Insert your Outlook code here
-   */
+  export async function run() {
+    // Scan the user's inbox for all emails
+    const mailbox = Office.context.mailbox;
+    let insertAt = document.getElementById("item-subject");
+    insertAt.innerHTML = "<b>Scanning inbox for financial emails...</b><br>";
 
-  const item = Office.context.mailbox.item;
-  let insertAt = document.getElementById("item-subject");
-  let label = document.createElement("b").appendChild(document.createTextNode("Subject: "));
-  insertAt.appendChild(label);
-  insertAt.appendChild(document.createElement("br"));
-  insertAt.appendChild(document.createTextNode(item.subject));
-  insertAt.appendChild(document.createElement("br"));
-}
+    // Use the Outlook REST API to get all messages (local only, no external calls)
+    // Office.js provides limited access; we use getCallbackTokenAsync for REST API
+    mailbox.getCallbackTokenAsync({ isRest: true }, async function(result) {
+      if (result.status === Office.AsyncResultStatus.Succeeded) {
+        const accessToken = result.value;
+        const restUrl = mailbox.restUrl + "/v2.0/me/mailfolders/inbox/messages?$top=50";
+        // Fetch messages using local REST API
+        try {
+          const response = await fetch(restUrl, {
+            headers: {
+              "Authorization": "Bearer " + accessToken,
+              "Accept": "application/json"
+            }
+          });
+          const data = await response.json();
+          if (data.value && data.value.length > 0) {
+            insertAt.innerHTML += `<b>Found ${data.value.length} emails.</b><br>`;
+            // List subjects and prepare for financial data extraction
+            data.value.forEach(email => {
+              insertAt.innerHTML += `<b>Subject:</b> ${email.Subject}<br>`;
+              // TODO: Extract financial data from email.Body
+              // TODO: Check for PDF attachments and parse them
+            });
+          } else {
+            insertAt.innerHTML += "No emails found in inbox.<br>";
+          }
+        } catch (err) {
+          insertAt.innerHTML += "Error scanning inbox: " + err.message + "<br>";
+        }
+      } else {
+        insertAt.innerHTML += "Failed to get access token for inbox scan.<br>";
+      }
+    });
+  }
