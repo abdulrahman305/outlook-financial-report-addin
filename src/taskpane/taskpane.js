@@ -24,32 +24,47 @@ Office.onReady((info) => {
     mailbox.getCallbackTokenAsync({ isRest: true }, async function(result) {
       if (result.status === Office.AsyncResultStatus.Succeeded) {
         const accessToken = result.value;
-        const restUrl = mailbox.restUrl + "/v2.0/me/mailfolders/inbox/messages?$top=50";
-        // Fetch messages using local REST API
-        try {
-          const response = await fetch(restUrl, {
-            headers: {
-              "Authorization": "Bearer " + accessToken,
-              "Accept": "application/json"
-            }
-          });
-          const data = await response.json();
-          if (data.value && data.value.length > 0) {
-            insertAt.innerHTML += `<b>Found ${data.value.length} emails.</b><br>`;
-            // List subjects and prepare for financial data extraction
-            data.value.forEach(email => {
-              insertAt.innerHTML += `<b>Subject:</b> ${email.Subject}<br>`;
-              // TODO: Extract financial data from email.Body
-              // TODO: Check for PDF attachments and parse them
+          const restUrl = mailbox.restUrl + "/v2.0/me/mailfolders/inbox/messages?$top=10&$select=Subject,Body,HasAttachments"; // Request body and attachments
+          // Fetch messages using local REST API
+          try {
+            const response = await fetch(restUrl, {
+              headers: {
+                "Authorization": "Bearer " + accessToken,
+                "Accept": "application/json"
+              }
             });
-          } else {
-            insertAt.innerHTML += "No emails found in inbox.<br>";
+            const data = await response.json();
+            if (data.value && data.value.length > 0) {
+              insertAt.innerHTML += `<b>Found ${data.value.length} emails.</b><br>`;
+              // List subjects and prepare for financial data extraction
+              data.value.forEach(email => {
+                insertAt.innerHTML += `<b>Subject:</b> ${email.Subject}<br>`;
+                
+                // Extract financial data from email body
+                const financialData = extractFinancialData(email.Body.Content);
+                if (financialData.length > 0) {
+                  insertAt.innerHTML += `Found financial data: ${financialData.join(", ")}<br>`;
+                }
+
+                // Check for PDF attachments
+                if (email.HasAttachments) {
+                  insertAt.innerHTML += "Email has attachments. PDF parsing to be implemented.<br>";
+                }
+              });
+            } else {
+              insertAt.innerHTML += "No emails found in inbox.<br>";
+            }
+          } catch (err) {
+            insertAt.innerHTML += "Error scanning inbox: " + err.message + "<br>";
           }
-        } catch (err) {
-          insertAt.innerHTML += "Error scanning inbox: " + err.message + "<br>";
+        } else {
+          insertAt.innerHTML += "Failed to get access token for inbox scan.<br>";
         }
-      } else {
-        insertAt.innerHTML += "Failed to get access token for inbox scan.<br>";
-      }
-    });
-  }
+      });
+    }
+    
+    function extractFinancialData(emailBody) {
+      const currencyRegex = /\$[0-9,]+(\.[0-9]{2})?/g;
+      const matches = emailBody.match(currencyRegex);
+      return matches || [];
+    }
