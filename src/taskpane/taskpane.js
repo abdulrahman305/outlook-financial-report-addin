@@ -46,10 +46,61 @@ Office.onReady((info) => {
                   insertAt.innerHTML += `Found financial data: ${financialData.join(", ")}<br>`;
                 }
 
+                import * as pdfjsLib from "pdfjs-dist/build/pdf";
+
+// Set workerSrc to load the PDF worker from a CDN
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
+Office.onReady((info) => {
+  if (info.host === Office.HostType.Outlook) {
+// ... existing code ...
                 // Check for PDF attachments
                 if (email.HasAttachments) {
-                  insertAt.innerHTML += "Email has attachments. PDF parsing to be implemented.<br>";
+                  getAttachments(mailbox, email.Id, accessToken);
                 }
+              });
+            } else {
+// ... existing code ...
+      return matches || [];
+    }
+
+    async function getAttachments(mailbox, itemId, accessToken) {
+      const restUrl = mailbox.restUrl + `/v2.0/me/messages/${itemId}/attachments`;
+      try {
+        const response = await fetch(restUrl, {
+          headers: {
+            "Authorization": "Bearer " + accessToken,
+            "Accept": "application/json"
+          }
+        });
+        const data = await response.json();
+        if (data.value && data.value.length > 0) {
+          data.value.forEach(attachment => {
+            if (attachment.ContentType === "application/pdf") {
+              document.getElementById("item-subject").innerHTML += `Found PDF: ${attachment.Name}<br>`;
+              parsePdf(attachment.ContentBytes);
+            }
+          });
+        }
+      } catch (err) {
+        document.getElementById("item-subject").innerHTML += "Error getting attachments: " + err.message + "<br>";
+      }
+    }
+
+    async function parsePdf(pdfData) {
+      const pdf = await pdfjsLib.getDocument({ data: atob(pdfData) }).promise;
+      let pdfText = "";
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        pdfText += textContent.items.map(item => item.str).join(" ");
+      }
+      
+      const financialData = extractFinancialData(pdfText);
+      if (financialData.length > 0) {
+        document.getElementById("item-subject").innerHTML += `Found financial data in PDF: ${financialData.join(", ")}<br>`;
+      }
+    }
               });
             } else {
               insertAt.innerHTML += "No emails found in inbox.<br>";
