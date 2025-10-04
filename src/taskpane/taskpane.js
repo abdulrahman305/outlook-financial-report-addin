@@ -16,6 +16,9 @@ Office.onReady((info) => {
     document.getElementById("sideload-msg").style.display = "none";
     document.getElementById("app-body").style.display = "flex";
     document.getElementById("run").onclick = run;
+    document.getElementById("generate-quarterly").onclick = () => generateReport('quarterly');
+    document.getElementById("generate-semi-annual").onclick = () => generateReport('semi-annual');
+    document.getElementById("generate-annual").onclick = () => generateReport('annual');
   }
 });
 
@@ -153,3 +156,45 @@ export async function run() {
     table += '</tbody></table>';
     container.innerHTML = table;
   }
+
+  function generateReport(period) {
+    const container = document.getElementById("report-container");
+    const now = new Date();
+    let filteredData = [];
+
+    if (period === 'quarterly') {
+        const quarter = Math.floor(now.getMonth() / 3);
+        const start = new Date(now.getFullYear(), quarter * 3, 1);
+        const end = new Date(now.getFullYear(), start.getMonth() + 3, 0);
+        filteredData = financialDataStore.filter(item => {
+            const itemDate = new Date(item.date);
+            return itemDate >= start && itemDate <= end;
+        });
+    } else if (period === 'semi-annual') {
+        const semi = now.getMonth() < 6 ? 0 : 6;
+        const start = new Date(now.getFullYear(), semi, 1);
+        const end = new Date(now.getFullYear(), start.getMonth() + 6, 0);
+        filteredData = financialDataStore.filter(item => {
+            const itemDate = new Date(item.date);
+            return itemDate >= start && itemDate <= end;
+        });
+    } else if (period === 'annual') {
+        const start = new Date(now.getFullYear(), 0, 1);
+        const end = new Date(now.getFullYear(), 11, 31);
+        filteredData = financialDataStore.filter(item => {
+            const itemDate = new Date(item.date);
+            return itemDate >= start && itemDate <= end;
+        });
+    }
+
+    const total = filteredData.reduce((sum, item) => sum + item.amount, 0);
+
+    let report = `<h3>${period.charAt(0).toUpperCase() + period.slice(1)} Financial Report</h3>`;
+    report += `<p>Total: $${total.toFixed(2)}</p>`;
+    report += '<table class="ms-Table"><thead><tr><th>Date</th><th>Subject</th><th>Amount</th><th>Source</th></tr></thead><tbody>';
+    filteredData.forEach(item => {
+        report += `<tr><td>${item.date}</td><td>${item.subject}</td><td>$${item.amount.toFixed(2)}</td><td>${item.source}</td></tr>`;
+    });
+    report += '</tbody></table>';
+    container.innerHTML = report;
+}
